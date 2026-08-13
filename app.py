@@ -31,7 +31,8 @@ def limpar_numero(texto):
 
 st.set_page_config(page_title="Sistema de Estoque", layout="centered")
 
-st.title("📦 MENU DO ESTOQUE")
+st.title("ALEX S.BORGES.LTDA")
+st.title("______Menu estoque______")
 st.write("_"*40)
 
 estoque = carregar_estoque()

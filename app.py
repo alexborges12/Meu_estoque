@@ -45,12 +45,26 @@ menu = st.radio(
 # 1. ADICIONAR PRODUTO
 if menu.startswith("1"):
     st.subheader("➕ Adicionar Produto")
-    with st.form("form_add"):
+    with st.form("form_add", clear_on_submit=True): # <- só adicionei isso aqui
         nome = st.text_input("Nome do produto").strip().replace(",","")
         qtd = st.text_input("Quantidade")
         quant = st.text_input("Especificação: kilos, unidade, caixa, fardo...")
-        valor_str = st.text_input("Valor do produto")
+        valor_str = st.text_input("Valor do produto").replace(",",".") # <- tratei a vírgula
+        
         submitted = st.form_submit_button("Cadastrar")
+
+        if submitted: # <- mudei pra dentro do form
+            try:
+                preco_float = float(valor_str)
+                preco = f"R$ {preco_float:.2f}"
+                
+                estoque.append([nome, preco_float, quant, preco])
+                salvar_estoque(estoque)
+                st.success(f"Produto '{nome}' cadastrado com sucesso!")
+                st.rerun() # <- isso aqui faz limpar e perguntar de novo
+                
+            except ValueError:
+                st.error("Valor inválido. Use apenas números. Ex: 10.50")
 
         if submitted:
             if not nome or not qtd or not quant or not valor_str:

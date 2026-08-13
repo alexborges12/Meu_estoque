@@ -61,6 +61,7 @@ if menu.startswith("1"):
                     preco_float = float(numero_qtd)
                     if preco_float <= 0:
                         st.error("Quantidade não pode ser 0 ou negativo!")
+                        
                     else:
                         numero_valor = limpar_numero(valor_str)
                         preco = float(numero_valor)
@@ -68,6 +69,7 @@ if menu.startswith("1"):
                         estoque.append([nome, preco_float, quant, preco])
                         salvar_estoque(estoque)
                         st.success(f"Produto '{nome}' cadastrado com sucesso!")
+                        st.rerun()
                 except ValueError:
                     st.error("Erro: Entrada inválida! Não aceita número por extenso!")
 

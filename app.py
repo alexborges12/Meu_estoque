@@ -115,27 +115,29 @@ elif menu.startswith("3"):
         st.info("Estoque vazio.")
 
 # 4. DELETAR PRODUTO
-elif menu.startswith("4"):
+elif menu.startswith("4"): # 4. DELETAR PRODUTO
     st.subheader("🗑️ Deletar Produto")
-    st.write("============= ESTOQUE ATUAL ============")
-    for a in estoque:
-        st.write(f"- {a[0]} | {a[1]:.2f} {a[2]} | R$ {a[3]:.2f}")
 
-    dlt = st.text_input("Digite o nome do produto pra deletar ou 'n' pra sair")
-    if dlt and dlt.lower()!= "n":
-        cont = 0
-        guarda_deletado = ""
-        for i, itens in enumerate(estoque):
-            if itens[0].lower() == dlt.lower():
-                guarda_deletado = itens[0]
-                estoque.pop(i)
-                cont += 1
+    if not estoque:
+        st.warning("Estoque vazio!")
+    else:
+        st.write("============= ESTOQUE ATUAL ============")
+        for a in estoque:
+            st.write(f"- {a[0]} | Qtd: {a[1]:.2f} {a[2]} | Valor: R$ {a[3]:.2f}")
+        st.write("=========================================")
+
+        with st.form("form_delete", clear_on_submit=True):
+            # Faz a lista pra tu escolher em vez de digitar
+            nomes_produtos = [item[0] for item in estoque]
+            produto_deletar = st.selectbox("Escolha o produto para deletar:", nomes_produtos)
+            confirmar = st.form_submit_button("Deletar")
+
+            if confirmar:
+                # Deleta o produto escolhido
+                estoque[:] = [item for item in estoque if item[0]!= produto_deletar]
                 salvar_estoque(estoque)
-                st.success(f"[{cont}] produto deletado!")
-                st.success(f"Item [{guarda_deletado}] deletado com sucesso!")
-                break
-        else:
-            st.error("Item produto não encontrado!")
+                st.success(f"Item '{produto_deletar}' deletado com sucesso!")
+                st.rerun() # <- atualiza a lista e já fica pronto pra deletar outro
 
     st.write("========== ESTOQUE ATUALIZADO ==========")
     for x in estoque:

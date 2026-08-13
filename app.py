@@ -112,17 +112,19 @@ elif menu.startswith("2"): # 2. CHECAR PRODUTO
                 st.rerun() # <- limpa e já fica pronto pra pesquisar outro        
 
 # 3. VER ESTOQUE
-elif menu.startswith("3"):
+elif menu.startswith("3"): # 3. VER ESTOQUE
     st.subheader("📋 Estoque Completo")
-    if estoque:
-        for item in estoque:
-    st.write("="*40)
-    st.write(f"**Produto:** {item[0]}")
-    st.write(f"**Quantidade:** {item[1]:.2f} {item[2]}")
-    st.write(f"**Preço:** R$ {item[3]:.2f}") # <- corrigi aqui
-    st.write("="*40)
+
+    if not estoque:
+        st.warning("Estoque vazio! Cadastre um produto primeiro.")
     else:
-        st.info("Estoque vazio.")
+        st.write(f"**Total de produtos:** {len(estoque)}")
+        for item in estoque:
+            st.write("="*40)
+            st.write(f"**Produto:** {item[0]}")
+            st.write(f"**Quantidade:** {item[1]:.2f} {item[2]}")
+            st.write(f"**Preço:** R$ {item[3]:.2f}")
+            st.write("="*40)
 
 # 4. DELETAR PRODUTO
 elif menu.startswith("4"): # 4. DELETAR PRODUTO

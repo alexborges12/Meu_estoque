@@ -88,29 +88,39 @@ if menu.startswith("1"):
                     st.error("Erro: Entrada inválida! Não aceita número por extenso!")
 
 # 2. CHECAR PRODUTO
-elif menu.startswith("2"):
+elif menu.startswith("2"): # 2. CHECAR PRODUTO
     st.subheader("🔍 Checar Produto")
-    op = st.text_input("Digite o nome do produto pra checar ou 'n' pra sair")
-    if op and op.lower()!= "n":
-        encontrado = False
-        for p in estoque:
-            if p[0].lower() == op.lower():
-                st.success(f"Achei: Produto {p[0]} | Quantidade {p[1]:.2f} {p[2]} | R$ {p[3]:.2f}")
-                encontrado = True
-                break
-        if not encontrado:
-            st.warning("Produto não cadastrado.")
+
+    with st.form("form_checar", clear_on_submit=True):
+        checar = st.text_input("Digite o nome do produto pra checar").strip().replace(",","")
+        buscar = st.form_submit_button("Pesquisar")
+
+        if buscar:
+            if not checar:
+                st.warning("Digite um nome para pesquisar")
+            else:
+                achou = False
+                for p in estoque:
+                    if p[0].lower() == checar.lower():
+                        st.success(f"Achei: Produto {p[0]} | Quantidade {p[1]:.2f} {p[2]} | R$ {p[3]:.2f}")
+                        achou = True
+                        break
+
+                if not achou:
+                    st.warning("Produto não cadastrado.")
+
+                st.rerun() # <- limpa e já fica pronto pra pesquisar outro        
 
 # 3. VER ESTOQUE
 elif menu.startswith("3"):
     st.subheader("📋 Estoque Completo")
     if estoque:
         for item in estoque:
-            st.write("="*40)
-            st.write(f"**Produto:** {item[0]}")
-            st.write(f"**Quantidade:** {item[1]:.2f} {item[2]}")
-            st.write(f"**Preço:** R$ {item[3]:.2f}")
-            st.write("="*40)
+    st.write("="*40)
+    st.write(f"**Produto:** {item[0]}")
+    st.write(f"**Quantidade:** {item[1]:.2f} {item[2]}")
+    st.write(f"**Preço:** R$ {item[3]:.2f}") # <- corrigi aqui
+    st.write("="*40)
     else:
         st.info("Estoque vazio.")
 

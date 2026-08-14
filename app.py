@@ -123,7 +123,7 @@ elif menu.startswith("3"): # 3. VER ESTOQUE
             st.write("="*40)
             st.write(f"**Produto:** {item[0]}")
             st.write(f"**Quantidade:** {item[1]:.2f} {item[2]}")
-            st.write(f"**Preço:** R$ {item[3]:.2f}")
+            st.write(f"**Preço:** R$ {item[3]}")
             st.write("="*40)
 
 # 4. DELETAR PRODUTO

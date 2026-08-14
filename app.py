@@ -153,7 +153,7 @@ elif menu.startswith("4"): # 4. DELETAR PRODUTO
 
     st.write("========== ESTOQUE ATUALIZADO ==========")
     for x in estoque:
-        st.write(f"| produto {x[0]} | quantidade {x[1]:.2f} {x[2]} | preço R$ {x[3]:.2f} |")
+        st.write(f"| produto {x[0]} | quantidade {x[1]:.2f} {x[2]} | preço R$ {x[3]} |")
 
 # 5. SAIR
 elif menu.startswith("5"):

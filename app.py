@@ -135,7 +135,7 @@ elif menu.startswith("4"): # 4. DELETAR PRODUTO
     else:
         st.write("============= ESTOQUE ATUAL ============")
         for a in estoque:
-            st.write(f"- {a[0]} | Qtd: {a[1]:.2f} {a[2]} | Valor: R$ {a[3]:.2f}")
+            st.write(f"- {a[0]} | Qtd: {a[1]:.2f} {a[2]} | Valor: R$ {a[3]}")
         st.write("=========================================")
 
         with st.form("form_delete", clear_on_submit=True):

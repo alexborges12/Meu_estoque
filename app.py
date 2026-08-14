@@ -1,193 +1,126 @@
+import streamlit as st
+import pandas as pd
 import os
-import json
 
-LINK_APP = "https://meuestoque-c5rebryzdwvgtobe5shzw2.streamlit.app/"
-estoque = []
+st.set_page_config(page_title="Sistema de Estoque", layout="centered")
+ARQUIVO = "estoque.csv"
 
-def limpar_tela():
-    os.system('cls' if os.name == 'nt' else 'clear')
+# Carrega os dados
+if os.path.exists(ARQUIVO):
+    df = pd.read_csv(ARQUIVO)
+else:
+    df = pd.DataFrame(columns=["ID", "Produto", "Preço", "Qtd"])
 
-def salvar_estoque():
-    with open("estoque.json", "w", encoding="utf-8") as f:
-        json.dump(estoque, f, ensure_ascii=False, indent=4)
+def salvar():
+    df.to_csv(ARQUIVO, index=False)
 
-def carregar_estoque():
-    global estoque
-    try:
-        with open("estoque.json","r", encoding="utf-8") as f:
-            estoque = json.load(f)
-    except FileNotFoundError:
-        estoque = []
+# Controle de tela pra "limpar"
+if 'tela' not in st.session_state:
+    st.session_state.tela = "menu"
 
-def perguntar_novamente(acao):
-    limpar_tela()
-    resp = input(f"\nDeseja {acao} novamente? [S/N]: ").strip().lower()
-    return resp == 's'
+# ========== CABEÇALHO FIXO ==========
+st.title("========== SISTEMA DE ESTOQUE ==========")
+st.subheader("ALEX S.BORGES.LTDA") # <- TEU NOME E EMPRESA AQUI
+st.write("Meu Estoque")
+st.divider()
 
-carregar_estoque()
+# ========== MENU PRINCIPAL ==========
+if st.session_state.tela == "menu":
+    st.write("### MENU PRINCIPAL")
 
-while True:
-    limpar_tela()
-    print("ALEX A.BORGES.LTDA".center(40))
-    print("___________Meu estoque___________".center(35))
-    print("_"*40)
-    print("1.) Adicionar_produto\n2.) Checar_produto\n3.) Ver_estoque\n4.) Deletar_produto\n5.) Link_App\n6.) Sair")
-    print("_"*40)
+    if st.button("1. Cadastrar Produto", use_container_width=True):
+        st.session_state.tela = "cadastrar"; st.rerun()
+    if st.button("2. Listar Produtos", use_container_width=True):
+        st.session_state.tela = "listar"; st.rerun()
+    if st.button("3. Editar Produto", use_container_width=True):
+        st.session_state.tela = "editar"; st.rerun()
+    if st.button("4. Excluir Produto", use_container_width=True):
+        st.session_state.tela = "excluir"; st.rerun()
+    if st.button("5. Vender Produto", use_container_width=True):
+        st.session_state.tela = "vender"; st.rerun()
+    if st.button("6. Relatório", use_container_width=True):
+        st.session_state.tela = "relatorio"; st.rerun()
+    if st.button("7. Sair", use_container_width=True):
+        st.write("Saindo...")
 
-    entrada = input("Escolha uma das opções acima, ex: 1,2,3,4,5 ou 6: ").strip().lower()
+# ========== 1. CADASTRAR ==========
+elif st.session_state.tela == "cadastrar":
+    st.title("========== CADASTRAR PRODUTO ==========")
+    nome = st.text_input("Digite o nome do produto:")
+    preco = st.number_input("Digite o preço:", min_value=0.0, format="%.2f")
+    qtd = st.number_input("Digite a quantidade:", min_value=0, step=1)
 
-    if entrada == "":
-        print("Entrada não pode ser vazia!")
-        input("Aperta ENTER ")
-        continue
+    if st.button("Salvar"):
+        novo_id = 1 if df.empty else df["ID"].max() + 1
+        df.loc[len(df)] = [novo_id, nome, preco, qtd]
+        salvar()
+        st.success("Produto cadastrado com sucesso!")
+        st.session_state.tela = "menu"; st.rerun()
 
-    # 1. ADICIONAR PRODUTO
-    if entrada == "1" or entrada == "adicionar_produto":
-        while True:
-            limpar_tela()
-            nome = input("Adicionar produto: ").strip().replace(",","")
-            if nome == "":
-                print("Entrada não pode ser vazia")
-                input("Aperta ENTER ")
-                continue
+    if st.button("Voltar ao Menu"):
+        st.session_state.tela = "menu"; st.rerun()
 
-            qtd = input("Adicionar quantidade: ").strip()
-            if qtd == "":
-                print("entrada não pode ser vazia!")
-                input("Aperta ENTER ")
-                continue
+# ========== 2. LISTAR ==========
+elif st.session_state.tela == "listar":
+    st.title("========== LISTA DE PRODUTOS ==========")
+    st.dataframe(df, use_container_width=True)
+    if st.button("Voltar ao Menu"):
+        st.session_state.tela = "menu"; st.rerun()
 
-            quant = input("kilos, unidade, caixa, fardo ou qualquer outra especificação: ").strip()
-            if quant == "":
-                print("Não pode ser vazio")
-                input("Aperta ENTER ")
-                continue
+# ========== 3. EDITAR ==========
+elif st.session_state.tela == "editar":
+    st.title("========== EDITAR PRODUTO ==========")
+    if not df.empty:
+        id_edit = st.selectbox("Digite o ID do produto:", df["ID"])
+        novo_nome = st.text_input("Novo nome:")
+        novo_preco = st.number_input("Novo preço:", min_value=0.0, format="%.2f")
+        nova_qtd = st.number_input("Nova quantidade:", min_value=0, step=1)
+        if st.button("Salvar Alterações"):
+            idx = df[df["ID"] == id_edit].index[0]
+            df.loc[idx] = [id_edit, novo_nome, novo_preco, nova_qtd]
+            salvar()
+            st.success("Produto editado!")
+            st.session_state.tela = "menu"; st.rerun()
+    if st.button("Voltar ao Menu"):
+        st.session_state.tela = "menu"; st.rerun()
 
-            while True:
-                valor_str = input("Qual é o valor do produto: R$ ").strip()
-                if valor_str == "":
-                    print("Entrada não pode ser vazio")
-                    continue
-                numero = ""
-                for letra in valor_str:
-                    if letra.isdigit() or letra in ".,-":
-                        numero += letra
-                if "," in numero and "." in numero:
-                    numero = numero.replace(".","")
-                numero = numero.replace(",",".")
-                try:
-                    preco = float(numero)
-                    if preco <= 0:
-                        print("Entrada não pode ser 0 ou negativo!")
-                        continue
-                    break
-                except ValueError:
-                    print("Erro, entrada inválida!\nNão aceita número por extenso!")
-                    continue
+# ========== 4. EXCLUIR ==========
+elif st.session_state.tela == "excluir":
+    st.title("========== EXCLUIR PRODUTO ==========")
+    if not df.empty:
+        id_del = st.selectbox("Digite o ID do produto:", df["ID"])
+        if st.button("Confirmar Exclusão"):
+            df = df[df["ID"]!= id_del]
+            salvar()
+            st.warning("Produto excluído!")
+            st.session_state.tela = "menu"; st.rerun()
+    if st.button("Voltar ao Menu"):
+        st.session_state.tela = "menu"; st.rerun()
 
-            estoque.append([nome, float(qtd), quant, preco])
-            salvar_estoque()
-            print(f"\nproduto cadastrado com sucesso!")
-
-            if not perguntar_novamente("cadastrar"):
-                break
-
-    # 2. CHECAR PRODUTO
-    elif entrada == "2" or entrada == "checar_produto":
-        while True:
-            limpar_tela()
-            op = input("Checa estoque ou 'n' pra sair: ").strip().lower()
-            if op == "n":
-                break
-            achou = False
-            for p in estoque:
-                if p[0].lower() == op:
-                    print("="*40)
-                    print(f"Achei : produto {p[0]} | quantidade {p[1]} {p[2]} | R$ {p[3]:.2f} |")
-                    print("="*40)
-                    achou = True
-                    break
-            if not achou:
-                print("produto não cadastrado.")
-
-            input("Aperta ENTER ")
-            if not perguntar_novamente("checar"):
-                break
-
-    # 3. VER ESTOQUE
-    elif entrada == "3" or entrada == "ver_estoque":
-        while True:
-            limpar_tela()
-            ver_stq = input("Digite '1' para ver estoque completo: ").strip()
-            if ver_stq == "1":
-                print("========= estoque completo =============")
-                if len(estoque) == 0:
-                    print("Estoque vazio!")
-                for item in estoque:
-                    print(f"Produto : {item[0]}\nQuantidade : {item[1]} {item[2]}\nPreço : R$ {item[3]:.2f}")
-                    print("="*40)
+# ========== 5. VENDER ==========
+elif st.session_state.tela == "vender":
+    st.title("========== VENDER PRODUTO ==========")
+    if not df.empty:
+        produto = st.selectbox("Escolha o produto:", df["Produto"])
+        qtd_venda = st.number_input("Quantidade para vender:", min_value=1, step=1)
+        if st.button("Confirmar Venda"):
+            idx = df[df["Produto"] == produto].index[0]
+            if df.loc[idx, "Qtd"] >= qtd_venda:
+                df.loc[idx, "Qtd"] -= qtd_venda
+                salvar()
+                st.success("Venda realizada!")
             else:
-                print("Opção inválida")
+                st.error("Estoque insuficiente!")
+            st.session_state.tela = "menu"; st.rerun()
+    if st.button("Voltar ao Menu"):
+        st.session_state.tela = "menu"; st.rerun()
 
-            if not perguntar_novamente("ver estoque"):
-                break
-
-    # 4. DELETAR PRODUTO
-    elif entrada == "4" or entrada == "deletar_produto":
-        while True:
-            limpar_tela()
-            print("============= ESTOQUE ATUAL ============")
-            if len(estoque) == 0:
-                print("Estoque vazio!")
-                input("Aperta ENTER ")
-                break
-            for a in estoque:
-                print(f"|produto : {a[0]}\nquantidade : {a[1]} {a[2]}\npreço : R$ {a[3]:.2f}")
-                print("-"*40)
-
-            dlt = input("Deleta produto no estoque 'n' pra sair : ").strip().lower()
-            if dlt == "n":
-                break
-
-            cont = 0
-            for i,itens in enumerate(estoque):
-                if itens[0].lower() == dlt:
-                    guarda_deletado = itens[0]
-                    estoque.pop(i)
-                    cont += 1
-                    salvar_estoque()
-                    print(f"\n[{cont}] produtos deletado!")
-                    print(f"Item [{guarda_deletado}] deletado com sucesso!")
-                    print("\n========== ESTOQUE ATUALIZADO ==========")
-                    for x in estoque:
-                        print(f"|produto {x[0]}|quantidade {x[1]} {x[2]}|preço R$ {x[3]:.2f}|")
-                    break
-            else:
-                print("Item produto não encontrado!")
-
-            input("Aperta ENTER ")
-            if not perguntar_novamente("deletar"):
-                break
-
-    # 5. LINK APP
-    elif entrada == "5" or entrada == "app.web":
-        limpar_tela()
-        print("")
-        print("########################################")
-        print(" LINK DO MEU APP PRA COPIAR:")
-        print(LINK_APP)
-        print(" Segura em cima > Abrir link")
-        print("########################################")
-        print("")
-        # volta direto pro menu sem perguntar
-
-    # 6. SAIR
-    elif entrada == "6" or entrada == "sair":
-        salvar_estoque()
-        print("tchau, volte sempre!")
-        break
-
-    else:
-        print("Entrada inválida!")
-        print("opçao de entrada:[1 ou adicionar_produto],[2 ou checar_produto],[3 ou ver_estoque],[4 ou deletar_produto],[5 ou app.web],[6 ou sair]")
-        input("Aperta ENTER ")
+# ========== 6. RELATÓRIO ==========
+elif st.session_state.tela == "relatorio":
+    st.title("========== RELATÓRIO ==========")
+    if not df.empty:
+        df["Total"] = df["Preço"] * df["Qtd"]
+        st.metric("Valor Total em Estoque", f"R$ {df['Total'].sum():.2f}")
+        st.dataframe(df)
+    if st.button("Voltar ao Menu"):
+        st.session_state.tela = "menu"; st.rerun()                
